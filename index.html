@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Challenge Exercice</title>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<style>
+body {
+    background-color: black;
+    color: white;
+}
+
+h2, h5{
+	    font-family: "Lucida Console", Times, serif;
+        font-weight: bold;
+        text-align: center;
+}
+
+.card {
+	background-color: #202020;
+}
+
+.table td, .table th{
+	 border: none;
+     text-align: center;
+}
+</style>
+
+<body ng-app="myApp" ng-controller="myCtrl">
+
+  <h2 class="mt-3">Ping Pong League</h2>
+	  <div class="container">
+
+  <div class="row mt-4">
+    <div class="card w-100">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Won</th>
+                  <th>Lost</th>
+                  <th>Winning %</th>
+                  <th>Points</th>
+                </tr>
+            </thead>
+
+            <tbody ng-repeat="player in top5">
+              <tr>
+                <td>{{$index+1}}</td>
+                <td>{{player.team}}</td>
+                <td>{{player.won}}</td>
+                <td>{{player.lost}}</td>
+                <td>{{player.winning}}</td>
+                <td>{{player.points}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  	<div class="row">
+
+     <div class="card col-md-3 m-3">
+      <div class="card-body">
+          <h5 class="text-center">Add a new player</h3>
+          <form class="mt-3" action="addPlayer" method="post">
+            <input class="form-control w-100 mt-4" id="team" name="team" placeholder="e.g. Jimbo">
+            <button type="submit" class="btn btn-danger mt-4 w-100">Add Player</button>
+          </form>
+      </div>
+     </div>
+
+     <div class="card col-md-4 m-3">
+        <div class="card-body">
+            <h5 class="text-center">Add Games</h3>
+            <form action="addGame" method="post">
+                <div class="row">
+                <div class="col-md-5">
+                	 <select class="form-control" name="player1">
+                       <option selected disabled>Please Select Player</option>
+                       <option ng-repeat="player in player_lists" value="{{player.team}}">{{player.team}}</option>
+                    </select>
+                    </div>
+
+                    <div class="col-md-2">
+                    <p class="text-center mt-3">VS<p>
+                    </div>
+
+                    <div class="col-md-5">
+                    <select class="form-control" name="player2">
+                    <option selected disabled>Please Select Player</option>
+                      <option ng-repeat="player in player_lists" value= "{{player.team}}">{{player.team}}</option>
+                    </select>
+                    </div>
+                    </div>
+
+                  <div class="row mt-3">
+                    <div class="col-md-12">
+                    	<p class="text-center">Score (max. of 5)</p>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-5">
+                    	            <input class="form-control w-100 mt-4" id="playerName" name="score1" placeholder="e.g. 11">
+                    </div>
+
+                    <div class="col-md-5 offset-md-2">
+                      <input class="form-control w-100 mt-4" id="playerName" name="score2" placeholder="e.g. 9">
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-danger mt-4 w-100">Add Game</button>
+
+                </form>
+              </div>
+            </div>
+
+            <div class="card col-md-3 m-3">
+              <div class="card-body">
+                <h5 class="text-center" >Latest Games</h3>
+
+                  <div class="row mt-3" ng-repeat="game in latestGames">
+                    <div class="col-md-12">
+                      <button class="btn btn-danger float-right">x</button>
+                      <p class="text-center">{{game.player1}} {{game.score1}}-{{game.score2}} {{game.player2}}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+<script type="text/javascript">
+var app = angular.module('myApp', []);
+  app.controller('myCtrl', function($scope, $http) {
+
+    $http.get("/top5")
+    .then(function(response) {
+      $scope.top5 = response.data;
+    });
+
+    $http.get("/latestGames")
+    .then(function(response) {
+      $scope.latestGames = response.data;
+    });
+
+    $http.get("/player_lists")
+    .then(function(response) {
+      $scope.player_lists = response.data;
+    });
+
+  });
+</script>
+</html>
